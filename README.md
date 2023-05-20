@@ -10,7 +10,7 @@ or yarn add -g @vue/cli
 ```
 
 ```
-git remote add origin https://gitlab.com/snsar/web-du-lich.git
+git clone https://gitlab.com/snsar/web-du-lich.git
 cd backend
 python -m venv .venv
 pip install -r requirements.txt
