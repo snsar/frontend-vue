@@ -15,6 +15,14 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
+          <li class="nav-item" v-if="isAuthenticated">
+            <router-link class="nav-link" to="/user/user-profile"
+              >Hồ sơ</router-link
+            >
+          </li>
+          <li class="nav-item" v-if="!isAuthenticated">
+            <router-link class="nav-link" to="/user/books">Sách</router-link>
+          </li>
           <li class="nav-item" v-if="!isAuthenticated">
             <router-link class="nav-link" to="/auth/login"
               >Đăng nhập</router-link
@@ -25,23 +33,20 @@
               >Đăng ký</router-link
             >
           </li>
-          <li class="nav-item" v-if="isAuthenticated">
-            <router-link class="nav-link" to="/user/user-profile"
-              >Hồ sơ</router-link
-            >
-          </li>
-          <li class="nav-item" v-if="isAuthenticated">
-            <router-link class="nav-link" to="/user/destinations"
-              >Địa điểm</router-link
-            >
-          </li>
-          <li class="nav-item" v-if="isAuthenticated && user.isAdmin">
+          <li class="nav-item" v-if="isAuthenticated && user.admin">
             <router-link class="nav-link" to="/user/admin">Admin</router-link>
           </li>
           <li class="nav-item" v-if="isAuthenticated">
             <router-link class="nav-link" to="/auth/logout" @click="logout"
               >Đăng xuất</router-link
             >
+          </li>
+          <li class="nav-item" v-if="isAuthenticated">
+            <router-link
+              class="nav-link"
+              to="/auth/logout"
+              @click="logout"
+            ></router-link>
           </li>
         </ul>
       </div>
@@ -51,7 +56,7 @@
 
 <script>
 import router from "@/router";
-
+import logoutAPI from "@/services/modules/AuthenModules.js";
 export default {
   name: "HeaderComponent",
   props: {
@@ -60,14 +65,13 @@ export default {
 
   computed: {
     isAuthenticated() {
-      return this.user && this.user.username;
+      return this.user && this.user.name;
     },
   },
   methods: {
-    logout() {
+    async logout() {
       // Thực hiện chức năng đăng xuất ở đây (gửi yêu cầu API, xóa local storage, v.v.)
-      this.$store.state.cookies.remove("access_token", { path: "/" });
-      this.$store.state.cookies.remove("refresh_token", { path: "/" });
+      await logoutAPI();
       router.push("/");
     },
   },

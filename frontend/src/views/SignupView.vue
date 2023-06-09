@@ -23,6 +23,7 @@
               id="input-name"
               placeholder="Enter your name"
               :class="{ 'is-invalid': errors.name }"
+              v-model="values.name"
             ></Field>
             <label for="input-name" style="color: #207198">Name</label>
             <div class="invalid-feedback d-block">{{ errors.name }}</div>
@@ -30,25 +31,13 @@
 
           <div class="form-floating mt-3">
             <Field
-              name="address"
-              type="text"
-              class="form-control"
-              id="input-address"
-              placeholder="Enter your address"
-              :class="{ 'is-invalid': errors.address }"
-            ></Field>
-            <label for="input-address" style="color: #207198">Address</label>
-            <div class="invalid-feedback d-block">{{ errors.address }}</div>
-          </div>
-
-          <div class="form-floating mt-3">
-            <Field
               name="email"
-              type="text"
+              type="email"
               class="form-control"
               id="input-email"
               placeholder="Enter your email address"
               :class="{ 'is-invalid': errors.email }"
+              v-model="values.email"
             ></Field>
             <label for="input-email" style="color: #207198"
               >Email address</label
@@ -58,53 +47,15 @@
 
           <div class="form-floating mt-3">
             <Field
-              name="phone"
-              type="text"
+              name="password"
+              type="password"
               class="form-control"
-              id="input-phone"
-              placeholder="Enter your phone number"
-              :class="{ 'is-invalid': errors.phone }"
+              id="input-password"
+              placeholder="Enter your password"
+              :class="{ 'is-invalid': errors.password }"
+              v-model="values.password"
             ></Field>
-            <label for="input-phone" style="color: #207198">Phone number</label>
-            <div class="invalid-feedback d-block">{{ errors.phone }}</div>
-          </div>
-
-          <div class="form-floating mt-3">
-            <Field
-              name="username"
-              type="text"
-              class="form-control"
-              id="input-username"
-              placeholder="Enter your username"
-              :class="{ 'is-invalid': errors.username }"
-            ></Field>
-            <label for="input-username" style="color: #207198">Username</label>
-            <div class="invalid-feedback d-block">{{ errors.username }}</div>
-          </div>
-
-          <div class="input-group mt-3">
-            <div class="form-floating">
-              <Field
-                name="password"
-                :type="showPassword ? 'text' : 'password'"
-                class="form-control"
-                id="input-password"
-                placeholder="Enter your password"
-                :class="{ 'is-invalid': errors.password }"
-              ></Field>
-              <label for="input-password" style="color: #207198"
-                >Password</label
-              >
-            </div>
-            <button
-              @click="togglePassword"
-              class="btn btn-outline-secondary rounded-end"
-              type="button"
-            >
-              <font-awesome-icon
-                :icon="`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`"
-              />
-            </button>
+            <label for="input-password" style="color: #207198">Password</label>
             <div class="invalid-feedback d-block">{{ errors.password }}</div>
           </div>
 
@@ -112,11 +63,12 @@
             <div class="form-floating">
               <Field
                 name="confirm_password"
-                :type="showConfirmPassword ? 'text' : 'password'"
+                type="password"
                 class="form-control"
                 id="input-confirm-password"
                 placeholder="Enter your confirm password"
-                :class="{ 'is-invalid': errors.confirmPassword }"
+                :class="{ 'is-invalid': errors.confirm_password }"
+                v-model="values.confirm_password"
               ></Field>
               <label for="input-confirm-password" style="color: #207198">
                 Confirm password
@@ -157,7 +109,7 @@
 </template>
 
 <script>
-import { Form, Field } from "vee-validate";
+import { Form, Field, useForm } from "vee-validate";
 import * as Yup from "yup";
 import { createUserAPI } from "@/services/modules/AuthenModules";
 import router from "@/router";
@@ -171,20 +123,12 @@ export default {
     Form,
     Field,
   },
-  data() {
+  setup() {
     const schema = Yup.object().shape({
       name: Yup.string().required("Name is required"),
-      address: Yup.string().required("Address is required"),
       email: Yup.string()
         .email("Email is invalid")
         .required("Email is required"),
-      phone: Yup.string()
-        .matches(
-          /(^\+?[0-9]{8,15}$)|(^(09|01[2|6|8|9])+([0-9]{8})$)/,
-          "Phone number is invalid"
-        ) // Kiểm tra đúng 10 chữ số
-        .required("Phone number is required"),
-      username: Yup.string().required("Username is required"),
       password: Yup.string()
         .min(8, "Password must be at least 8 characters")
         .test(
@@ -201,47 +145,55 @@ export default {
         .required("Confirm password is required"),
     });
 
-    return {
-      schema,
-      showPassword: false,
-      showConfirmPassword: false,
-      user: {},
-    };
-  },
-  methods: {
-    async onSubmit(values) {
+    const { handleSubmit, values, errors } = useForm({
+      validationSchema: schema,
+    });
+
+    const onSubmit = handleSubmit(async (values) => {
       try {
         const response = await createUserAPI(
           values.name,
-          values.address,
           values.email,
-          values.phone,
-          values.username,
           values.password,
           values.confirm_password
         );
-        if (response.status == 201) {
+        if (response.status === 201) {
           this.$store.state.toast.success(response.data.message);
           router.push("/");
         }
       } catch (error) {
         this.$store.state.toast.warning(error.response.data.message);
       }
-    },
-    togglePassword() {
-      this.showPassword = !this.showPassword;
-    },
-    toggleConfirmPassword() {
-      this.showConfirmPassword = !this.showConfirmPassword;
-    },
-  },
-  async created() {
-    // Lấy thông tin người dùng
-    // Code để lấy thông tin người dùng ở đây
-    const getUserResponse = await getUserAPI(
-      this.$store.state.cookies.get("access_token")
-    );
-    this.user = getUserResponse.data.user;
+    });
+
+    let showConfirmPassword = false;
+
+    function toggleConfirmPassword() {
+      showConfirmPassword = !showConfirmPassword;
+    }
+
+    let user = {};
+
+    async function getUserData() {
+      try {
+        const getUserResponse = await getUserAPI();
+        user = getUserResponse.data.user;
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    getUserData();
+
+    return {
+      schema,
+      values,
+      errors,
+      onSubmit,
+      showConfirmPassword,
+      toggleConfirmPassword,
+      user,
+    };
   },
 };
 </script>

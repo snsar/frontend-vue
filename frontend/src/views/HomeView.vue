@@ -4,21 +4,14 @@
 
     <div class="container">
       <div class="jumbotron">
-        <h1 class="display-4">Chào mừng đến với Website Du lịch của tôi</h1>
-        <p class="lead">
-          Khám phá thế giới cùng chúng tôi và trải nghiệm những cuộc phiêu lưu
-          đáng nhớ.
-        </p>
+        <h1 class="display-4">Chào mừng đến với Thư viện online</h1>
+        <p class="lead">Khám phá những quyển sách hay động lòng người</p>
         <hr class="my-4" />
-        <p>
-          Tìm hiểu về những địa điểm tuyệt đẹp, tìm kiếm những giao dịch du lịch
-          tốt nhất và tạo những kỷ niệm vĩnh cửu.
-        </p>
         <p class="lead">
           <a
             v-if="user"
             class="btn btn-primary btn-lg"
-            href="/user/destinations"
+            href="/user/books"
             role="button"
           >
             Bắt đầu
@@ -38,8 +31,8 @@
 </template>
 
 <script>
-import HeaderComponent from "../components/Header.vue";
-import { getUserAPI } from "@/services/modules/AuthenModules";
+import HeaderComponent from "@/components/Header.vue";
+import { getUserAPI } from "@/services/modules/AuthenModules.js";
 
 export default {
   name: "HomeView",
@@ -52,12 +45,12 @@ export default {
     };
   },
   async created() {
-    // Lấy thông tin người dùng
-    // Code để lấy thông tin người dùng ở đây
-    const getUserResponse = await getUserAPI(
-      this.$store.state.cookies.get("access_token")
-    );
-    this.user = getUserResponse.data.user;
+    try {
+      const getUserResponse = await getUserAPI(this.$store.state.userId);
+      this.user = getUserResponse.user;
+    } catch (error) {
+      console.error(error);
+    }
   },
 };
 </script>

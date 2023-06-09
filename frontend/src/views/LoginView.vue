@@ -18,15 +18,15 @@
         >
           <div class="form-floating mt-3">
             <Field
-              name="username"
+              name="email"
               type="text"
               class="form-control form-control-sm"
-              id="input-username"
-              placeholder="Enter your username"
-              :class="{ 'is-invalid': errors.username }"
+              id="input-email"
+              placeholder="Enter your email"
+              :class="{ 'is-invalid': errors.email }"
             ></Field>
-            <label for="input-username" style="color: #207198">Username</label>
-            <div class="invalid-feedback d-block">{{ errors.username }}</div>
+            <label for="input-email" style="color: #207198">Email</label>
+            <div class="invalid-feedback d-block">{{ errors.email }}</div>
           </div>
 
           <div class="input-group mt-3">
@@ -76,10 +76,9 @@
 <script>
 import { Form, Field } from "vee-validate";
 import * as Yup from "yup";
-import { loginAPI } from "@/services/modules/AuthenModules";
+import { loginAPI, getUserAPI } from "@/services/modules/AuthenModules";
 import router from "@/router";
 import HeaderComponent from "../components/Header.vue";
-import { getUserAPI } from "@/services/modules/AuthenModules";
 
 export default {
   name: "LoginView",
@@ -90,7 +89,7 @@ export default {
   },
   data() {
     const schema = Yup.object().shape({
-      username: Yup.string().required("Username is required"),
+      email: Yup.string().required("Email is required"),
       password: Yup.string().required("Password is required"),
     });
 
@@ -100,30 +99,18 @@ export default {
       user: {},
     };
   },
-  async created() {
-    // Lấy thông tin người dùng
-    // Code để lấy thông tin người dùng ở đây
-    const getUserResponse = await getUserAPI(
-      this.$store.state.cookies.get("access_token")
-    );
-    this.user = getUserResponse.data.user;
-  },
   methods: {
     async onSubmit(values) {
       try {
-        const response = await loginAPI(values.username, values.password);
+        const loginRequest = {
+          email: values.email,
+          password: values.password,
+        };
 
-        if (response.status == 200) {
-          this.$store.state.cookies.set(
-            "access_token",
-            response.data.access_token,
-            { maxAge: 60 * 60 * 24, path: "/" }
-          ); // 1 day
-          this.$store.state.cookies.set(
-            "refresh_token",
-            response.data.refresh_token,
-            { maxAge: 60 * 60 * 24 * 3, path: "/" }
-          ); // 3 days
+        const response = await loginAPI(loginRequest);
+
+        if (response.status == 202) {
+          this.$store.state.userId = response.data.id;
           router.push("/");
         }
       } catch (error) {
@@ -133,6 +120,12 @@ export default {
     togglePassword() {
       this.showPassword = !this.showPassword;
     },
+  },
+  async created() {
+    // Lấy thông tin người dùng
+    // Code để lấy thông tin người dùng ở đây
+    const getUserResponse = await getUserAPI();
+    this.user = getUserResponse.data.user;
   },
 };
 </script>

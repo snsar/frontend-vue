@@ -1,52 +1,29 @@
 import instance from "../axios";
 
-function createUserAPI(
-  name,
-  address,
-  email,
-  phone_number,
-  username,
-  password,
-  confirm_password
-) {
+function createUserAPI(name, email, password) {
   const data = {
     name: name,
-    address: address,
     email: email,
-    phone_number: phone_number,
-    username: username,
-    password: password,
-    confirm_password: confirm_password,
-  };
-
-  return instance.post("authen/register", data);
-}
-
-function loginAPI(username, password) {
-  const data = {
-    username: username,
     password: password,
   };
 
-  return instance.post("authen/login", data);
+  return instance.post("auth/register", data);
 }
 
-function refreshAccessToken(refresh_token) {
-  const data = { refresh: refresh_token };
-
-  return instance.post("authen/refresh-token", data);
+function loginAPI(data) {
+  return instance.post("auth/login", data);
 }
 
-function getUserAPI(access_token) {
-  return instance.get("authen/user-info", {
-    headers: { Authorization: `Bearer ${access_token}` },
-  });
+function logoutAPI() {
+  return instance.get(`auth/logout`);
 }
 
-function getUsersAPI(access_token) {
-  return instance.get("authen/users", {
-    headers: { Authorization: `Bearer ${access_token}` },
-  });
+function getUserAPI(userId) {
+  return instance.get(`auth/user_info/${userId}`);
 }
 
-export { createUserAPI, loginAPI, getUserAPI, refreshAccessToken, getUsersAPI };
+// function getUsersAPI() {
+//   return instance.get("api/auth/login");
+// }
+
+export { createUserAPI, loginAPI, logoutAPI, getUserAPI };

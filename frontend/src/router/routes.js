@@ -1,13 +1,11 @@
 import LoginView from "@/views/LoginView.vue";
 import SignupView from "@/views/SignupView.vue";
 import HomeView from "@/views/HomeView.vue";
-import UserView from "@/views/UserView.vue";
-import DestinationView from "@/views/DestinationView";
-import StatView from "@/views/StatView.vue";
-import AddDestinationView from "@/views/AddDestinationView.vue";
-import ToursView from "@/views/ToursView.vue";
-import AdminView from "@/views/AdminView.vue";
-import UpdateDestinationView from "@/views/UpdateDestinationView.vue";
+// import UserView from "@/views/UserView.vue";
+// import DestinationView from "@/views/DestinationView";
+import AddBookView from "@/views/AddBookView.vue";
+import UpdateBookView from "@/views/UpdateBookView.vue";
+import BookView from "@/views/BookView.vue";
 
 const routes = [
   {
@@ -51,39 +49,19 @@ const routes = [
         component: HomeView,
       },
       {
-        path: "user-profile",
-        name: "user_profile",
-        component: UserView,
+        path: "books",
+        name: "books",
+        component: BookView,
       },
       {
-        path: "destinations",
-        name: "destinations",
-        component: DestinationView,
-      },
-      {
-        path: "stat",
-        name: "stat",
-        component: StatView,
-      },
-      {
-        path: "adddestination",
-        name: "adddestination",
-        component: AddDestinationView,
-      },
-      {
-        path: "tours",
-        name: "tours",
-        component: ToursView,
-      },
-      {
-        path: "admin",
-        name: "admin",
-        component: AdminView,
+        path: "addbook",
+        name: "addbook",
+        component: AddBookView,
       },
       {
         path: "update/:id",
-        name: "UpdateDestinatoin",
-        component: UpdateDestinationView,
+        name: "UpdateBook",
+        component: UpdateBookView,
       },
     ],
   },
